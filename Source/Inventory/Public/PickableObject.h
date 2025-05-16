@@ -28,17 +28,17 @@ public:
 
 protected:
 	// Called when the game starts or when spawned
-	//virtual void BeginPlay() override;
+	virtual void BeginPlay() override;
 
 	UPROPERTY()
-	UStaticMeshComponent* MeshComponent;
+	UStaticMeshComponent* MeshComponent = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory")
 	FItemStruct ItemData;
 
 	#if WITH_EDITORONLY_DATA
 		UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory")
-		UStaticMesh* Mesh;
+		UStaticMesh* Mesh = nullptr;
 	#endif
 
 	#if WITH_EDITOR
@@ -47,5 +47,5 @@ protected:
 
 public:	
 	// Called every frame
-	//virtual void Tick(float DeltaTime) override;
+	virtual void Tick(float DeltaTime) override;
 };

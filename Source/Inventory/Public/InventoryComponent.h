@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "InventoryComponent.generated.h"
 
+#include "InventoryComponent.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class INVENTORY_API UInventoryComponent : public UActorComponent
@@ -20,9 +20,16 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int32 Rows = 5;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int32 Cols = 5;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UUserWidget* InventoryWidgetClass = nullptr;
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-		
 };

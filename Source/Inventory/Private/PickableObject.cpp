@@ -25,16 +25,16 @@ void APickableObject::PickUp_Implementation()
 }
 
 // Called when the game starts or when spawned
-//void APickableObject::BeginPlay()
-//{
-//	Super::BeginPlay();
-//}
+void APickableObject::BeginPlay()
+{
+	Super::BeginPlay();
+}
 
 // Called every frame
-//void APickableObject::Tick(float DeltaTime)
-//{
-//	Super::Tick(DeltaTime);
-//}
+void APickableObject::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
 
 #if WITH_EDITOR
 void APickableObject::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)

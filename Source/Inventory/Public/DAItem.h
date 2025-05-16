@@ -25,7 +25,7 @@ public:
 	FText ItemDescription;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory")
-	UTexture2D* ItemIcon;
+	UTexture2D* ItemIcon = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory", meta = (ClampMin = "1"))
 	int32 MaxQuantity;
