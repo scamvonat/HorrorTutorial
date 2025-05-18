@@ -5,10 +5,12 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "GameFramework/Character.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "PickableObject.h"
 #include "InteractionWidget.h"
 #include "InventoryWidget.h"
+#include "InventoryComponent.h"
 #include "InventorySlotWidget.h"
 
 #include "PlayerInventoryComponent.generated.h"
@@ -35,6 +37,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Close();
 
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsOpen = false;
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -60,7 +64,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<UInventorySlotWidget> InventorySlotWidgetClass = nullptr;
-
+	
 	UPROPERTY()
 	TArray<UInventorySlotWidget*> InventorySlots;
 
@@ -70,9 +74,22 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	int32 Rows = 5;
 
+	UPROPERTY()
+	UInventoryComponent* InventoryComponent = nullptr;
+
+	UFUNCTION()
+	void OnAddItem(FInventoryAddEvent EventData);
+
+	UFUNCTION()
+	void OnRemoveItem(FInventoryRemoveEvent EventData);
 
 	void SetCurrentLootingObject(APickableObject* LootingObject);
 
+	UFUNCTION()
+	void OnMouseEnterSlot(int32 Index);
+
+	UFUNCTION()
+	void OnMouseLeaveSlot(int32 Index);
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

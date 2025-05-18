@@ -8,6 +8,7 @@ void UInventorySlotWidget::NativeOnMouseEnter(const FGeometry& InGeometry, const
 	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
 
 	PlayAnimationForward(HoverAnimation);
+	OnMouseEnterSlot.Broadcast(SlotIndex);
 }
 
 void UInventorySlotWidget::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
@@ -15,6 +16,7 @@ void UInventorySlotWidget::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
 	Super::NativeOnMouseLeave(InMouseEvent);
 
 	PlayAnimationReverse(HoverAnimation);
+	OnMouseLeaveSlot.Broadcast(SlotIndex);
 }
 
 void UInventorySlotWidget::SetItemQuantity(int32 Quantity)
@@ -34,6 +36,11 @@ void UInventorySlotWidget::SetItemImage(UTexture2D* Texture)
 	{
 		Image->SetVisibility(ESlateVisibility::Hidden);
 	}
+}
+
+void UInventorySlotWidget::SetSlotIndex(int32 Index)
+{
+	SlotIndex = Index;
 }
 
 void UInventorySlotWidget::NativeConstruct()

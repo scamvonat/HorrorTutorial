@@ -9,6 +9,8 @@
 
 #include "InventorySlotWidget.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHoverSlot, int32, Index);
+
 /**
  * 
  */
@@ -23,13 +25,24 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void SetItemImage(UTexture2D* Texture);
-	
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	void SetSlotIndex(int32 Index);
+
+	UPROPERTY(BlueprintAssignable)
+	FOnHoverSlot OnMouseEnterSlot;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnHoverSlot OnMouseLeaveSlot;
 protected:
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* HoverAnimation = nullptr;
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* QuantityText = nullptr;
+
+	UPROPERTY()
+	int32 SlotIndex;
 
 	UPROPERTY(meta = (BindWidget))
 	UImage* Image = nullptr;

@@ -9,7 +9,7 @@
 
 #include "PickableObject.generated.h"
 
-UCLASS()
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class INVENTORY_API APickableObject : public AActor
 {
 	GENERATED_BODY()
@@ -25,6 +25,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void PickUp();
 	virtual void PickUp_Implementation();
+
+	UFUNCTION(BlueprintCallable)
+	FItemStruct GetItem() const;
 
 protected:
 	// Called when the game starts or when spawned
@@ -44,7 +47,6 @@ protected:
 	#if WITH_EDITOR
 		virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 	#endif
-
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

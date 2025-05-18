@@ -24,6 +24,11 @@ void APickableObject::PickUp_Implementation()
 	Destroy();
 }
 
+FItemStruct APickableObject::GetItem() const
+{
+	return ItemData;
+}
+
 // Called when the game starts or when spawned
 void APickableObject::BeginPlay()
 {

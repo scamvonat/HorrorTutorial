@@ -18,4 +18,20 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
 	int32 Quantity;
+
+	virtual EDataValidationResult IsDataValid(FDataValidationContext& Context) const override {
+		EDataValidationResult Result = EDataValidationResult::Valid;
+
+		if(ItemName.IsNone())
+		{
+			Result = EDataValidationResult::Invalid;
+		}
+
+		if(Quantity < 1) 	
+		{
+			Result = EDataValidationResult::Invalid;
+		}
+
+		return Result;
+	}
 };

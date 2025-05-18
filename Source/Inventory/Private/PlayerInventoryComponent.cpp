@@ -38,7 +38,44 @@ void UPlayerInventoryComponent::BeginPlay()
 		InventoryWidget->AddToViewport();
 
 		InventoryWidget->Init(Cols, Rows, InventorySlotWidgetClass);
+		InventoryWidget->OnInventoryClose.AddDynamic(this, &UPlayerInventoryComponent::Close);
+
+		InventoryWidget->OnMouseEnterSlot.AddDynamic(this, &UPlayerInventoryComponent::OnMouseEnterSlot);
+		InventoryWidget->OnMouseLeaveSlot.AddDynamic(this, &UPlayerInventoryComponent::OnMouseLeaveSlot);
+		Close();
 	}
+
+	AActor* Actor = GetOwner();
+	if (!IsValid(Actor)) {
+		UE_LOG(LogTemp, Error, TEXT("Owner Not Found"));
+		return;
+	};
+
+	InventoryComponent = Actor->GetComponentByClass<UInventoryComponent>();
+
+	if(!IsValid(InventoryComponent)) {
+		UE_LOG(LogTemp, Error, TEXT("InventoryComponent Not Found"));
+		return;
+	};
+
+	InventoryComponent->OnAddItem.AddDynamic(this, &UPlayerInventoryComponent::OnAddItem);
+	InventoryComponent->OnRemoveItem.AddDynamic(this, &UPlayerInventoryComponent::OnRemoveItem);
+}
+
+void UPlayerInventoryComponent::OnAddItem(FInventoryAddEvent EventData)
+{
+	UDAItem* ItemData = UItemUtils::GetItemByID(EventData.AddedItem.ItemName);
+	int32 NewQuantity = EventData.AddedItem.Quantity + EventData.Slot.Quantity;
+	
+	InventoryWidget->UpdateSlot(
+		EventData.SlotIndex,
+		ItemData->ItemIcon,
+		NewQuantity
+		);
+}
+
+void UPlayerInventoryComponent::OnRemoveItem(FInventoryRemoveEvent EventData)
+{
 }
 
 void UPlayerInventoryComponent::SetCurrentLootingObject(APickableObject* LootingObject)
@@ -53,6 +90,29 @@ void UPlayerInventoryComponent::SetCurrentLootingObject(APickableObject* Looting
 	};
 
 	InteractionWidget->OnInteractionStarted();
+}
+
+void UPlayerInventoryComponent::OnMouseEnterSlot(int32 Index)
+{
+	UE_LOG(LogTemp, Warning, TEXT("SLOT %s"), *FString::FromInt(Index));
+	
+	TArray<FItemStruct> Items = InventoryComponent->GetInventoryItems();
+	if (!Items.IsValidIndex(Index)) return;
+
+	FItemStruct& Item = Items[Index];
+	if (Item.ItemName.IsNone()) return;
+	
+	UDAItem* ItemData = UItemUtils::GetItemByID(Item.ItemName);
+
+	if (!IsValid(ItemData)) return;
+	InventoryWidget->SetSlotTooltip(ItemData->ItemName, ItemData->ItemDescription, ItemData->ItemIcon);
+	
+	InventoryWidget->SetSlotTooltipVisibility(ESlateVisibility::Visible);
+}
+
+void UPlayerInventoryComponent::OnMouseLeaveSlot(int32 Index)
+{
+	InventoryWidget->SetSlotTooltipVisibility(ESlateVisibility::Hidden);
 }
 
 // Called every frame
@@ -140,12 +200,56 @@ void UPlayerInventoryComponent::PickUp()
 {
 	if (!IsValid(CurrentLootingObject)) return;
 
+	FItemStruct ItemData = CurrentLootingObject->GetItem();
+
+	InventoryComponent->AddItem(ItemData);
+	
 	CurrentLootingObject->PickUp();
 	SetCurrentLootingObject(nullptr);
 }
 
 void UPlayerInventoryComponent::Open(){
+	UE_LOG(LogTemp, Display, TEXT("Open"));
+	InventoryWidget->SetVisibility(ESlateVisibility::Visible);
+	bIsOpen = true;
 
+	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (!IsValid(PC))
+	{
+		SetCurrentLootingObject(nullptr);
+		UE_LOG(LogTemp, Error, TEXT("PlayerController Not Found"));
+		return;
+	}
+	
+	PC->SetShowMouseCursor(true);
+
+	FInputModeUIOnly InputMode;
+	InputMode.SetWidgetToFocus(InventoryWidget->TakeWidget());
+	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	PC->SetInputMode(InputMode);
 }
 
-void UPlayerInventoryComponent::Close() {}
+void UPlayerInventoryComponent::Close()
+{
+	UE_LOG(LogTemp, Display, TEXT("Close"));
+	InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
+	bIsOpen = false;
+
+	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (!IsValid(PC))
+	{
+		SetCurrentLootingObject(nullptr);
+		UE_LOG(LogTemp, Error, TEXT("PlayerController Not Found"));
+		return;
+	}
+
+	PC->SetShowMouseCursor(false);
+	PC->SetInputMode(FInputModeGameOnly());
+}
+
+// void UPlayerInventoryComponent::Toggle()
+// {
+// 	UE_LOG(LogTemp, Display, TEXT("Toggle"));
+// 	
+// 	bIsOpen ? Close() : Open();
+// }

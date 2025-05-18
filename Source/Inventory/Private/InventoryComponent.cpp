@@ -13,12 +13,89 @@ UInventoryComponent::UInventoryComponent()
 	// ...
 }
 
+int32 UInventoryComponent::GetColCount() const
+{
+	return Cols;
+}
+
+int32 UInventoryComponent::GetRowCount() const
+{
+	return Rows;
+}
+
+int32 UInventoryComponent::GetSlotCount() const
+{
+	return Rows * Cols;
+}
+
+void UInventoryComponent::AddItem(const FItemStruct& Item)
+{
+	FDataValidationContext Context;
+	
+	if (Item.IsDataValid(Context) == EDataValidationResult::Invalid)
+	{
+		return;
+	}
+
+	UDAItem* ItemData = UItemUtils::GetItemByID(Item.ItemName);
+
+	if (!IsValid(ItemData))
+	{
+		return;
+	}
+
+	int32 ItemSlot = GetSlotForItem(Item);
+	if (ItemSlot == -1) return;
+
+	if(!InventoryItems.IsValidIndex(ItemSlot)) return;
+
+	FItemStruct& SlotItem = InventoryItems[ItemSlot];
+
+	FInventoryAddEvent AddEvent;
+
+	AddEvent.Slot = SlotItem;
+	AddEvent.SlotIndex = ItemSlot;
+	AddEvent.AddedItem = Item;
+
+	if (SlotItem.Quantity > 0) {
+
+		SlotItem.Quantity += Item.Quantity;
+	}
+	else {
+		SlotItem = Item;
+	}
+	
+	OnAddItem.Broadcast(AddEvent);
+}
+
+int32 UInventoryComponent::GetSlotForItem(const FItemStruct& Item) const
+{
+	for (int32 Index = 0; Index < GetSlotCount(); Index++) 
+	{
+		const FItemStruct& SlotItem = InventoryItems[Index];
+
+		if (SlotItem.Quantity < 1) return Index;
+
+		if (Item.ItemName == SlotItem.ItemName) return Index;
+	}
+
+	return -1;
+}
+
+const TArray<FItemStruct>& UInventoryComponent::GetInventoryItems() const
+{
+	return InventoryItems;
+}
+
 // Called when the game starts
 void UInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
 	// ...
+
+	FItemStruct DefaultItem;
+	InventoryItems.Init(DefaultItem, GetSlotCount());
 }
 
 // Called every frame

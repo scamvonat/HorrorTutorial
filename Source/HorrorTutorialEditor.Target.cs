@@ -11,5 +11,6 @@ public class HorrorTutorialEditorTarget : TargetRules
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_5;
 		ExtraModuleNames.Add("HorrorTutorial");
+		ExtraModuleNames.Add("Inventory");
 	}
 }
